@@ -1,0 +1,30 @@
+### 登录
+POST http://localhost:3000/api/login HTTP/1.1
+content-type: application/json
+
+{
+    "username": "wangwu",
+    "password": "123456"
+}
+
+### 获取用户信息
+GET http://localhost:3000/api/getInfo?id=4 HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJ3YW5nd3UiLCJpYXQiOjE3NDE2ODM2OTIzNDUsImV4cCI6MTc0MTY4Mzc3ODc0NX0.djYTtf2fLfVuC9OKCD6k-Wn_ndcvO602T22PgT1HNeU
+
+
+### 获取用户信息、权限、菜单
+GET http://localhost:3000/api/system/user/4 HTTP/1.1
+# content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwidXNlcm5hbWUiOiJ3YW5nd3UiLCJpYXQiOjE3NDE2ODM2OTIzNDUsImV4cCI6MTc0MTY4Mzc3ODc0NX0.djYTtf2fLfVuC9OKCD6k-Wn_ndcvO602T22PgT1HNeU
+
+
+### 重置密码
+PUT http://localhost:3000/api/system/user/resetPwd/4 HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3NDE2NjE0MDYzNDAsImV4cCI6MTc0MTY2MTQ5Mjc0MH0.-GrAZiEY4-OzjcPXOtLGHxR9_-tYi1sMwffcP2FlZEU
+
+{
+    "username": "wangwu",
+    "password": "123456"
+}

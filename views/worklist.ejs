@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel='stylesheet' href='./stylesheets/style.css' />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta name="viewport" content="width=device-width , initial-scale=1.0, minimum-scale=0.5, maximum-scale=1.5,user-scalable=yes">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="清单">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- 引入样式 -->
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="./stylesheets/worklist/index.css">
+</head>
+<body class="hide" style="overflow: hidden;">
+	<div id="app">
+		<div id="fullmarks" style="position: fixed;width: 100%;height: 100%;background: #fff;z-index: 9999">
+			<div style="position: fixed;left: 0;top:0;right: 0;bottom: 0;margin: auto;width: 100px;height: 100px;text-align: center;">
+				<p><img src="./images/youqingdan.png"></p>
+				<p><i class="el-icon-loading" style="font-size: 24px;color: #5cb6ff"></i></p>
+			</div>
+		</div>
+		<div id="leftbar" ref="leftbar" :class="leftbarshow?'leftset':''">
+			<div>
+				<div style="margin: 10px;line-height: 40px;overflow: hidden;">
+					
+					<el-dropdown trigger="click" style="float: left;">
+                        <span class="el-dropdown-link">
+                            <img style="height: 40px;width: 40px;border-radius: 50%;overflow: hidden;float: left;" src="<%= datas[0].avatar %>">
+                        </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command='set'><a href="/user">设置</a></el-dropdown-item>
+                            <el-dropdown-item command='signout'>退出</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+					<span style="margin-left: 10px;color: #fff"><%= datas[0].name %></span>
+					<div style="float: right;font-size: 18px;color: #b6d7a8;">
+						<i class="el-icon-message" style="margin-right: 10px;"></i>
+						<i class="el-icon-search"></i>
+					</div>
+				</div>
+				<div style="overflow: hidden;">
+					<ul class="dateselect">
+						<li v-for="(item,index) in leftbar.group0" v-if="item.is_show==1" @click="changeBar('',item.name,index,item.key,item.is_vip,'group0')" :class="actives.group0[index]?'active':''">
+							<div class="baritem">
+								<i :class="item.icon"></i>
+								<span>{{item.name}}</span>
+								<div class="taskcount">{{item.count==0?'':item.count}}</div>
+							</div>
+						</li>						
+					</ul>
+				</div>
+				<div style="overflow: hidden;">
+					<div>
+						<el-tabs v-model="activeName" >
+							<!-- !@tab-click="handleClick" -->
+						    <el-tab-pane label="清单" name="first">
+						    	<ul class="dateselect">
+									<li v-for="(item,index) in leftbar.orderlist" :class="actives.orderlist[index]?'active':''" @click="changeBar(item.id,item.name,index,'orderlist','','orderlist')">
+										<div class="baritem">
+											<i class="el-icon-s-unfold mr10" style="font-size: 14px;"></i>
+							    			<span>{{item.name}}</span>
+							    			<p class="fr"><span class="num">{{item.count==0?'':item.count}}</span>
+								    			<el-dropdown trigger="click"  @command="orderCommand" style="float: left;">
+							                        <span class="el-dropdown-link">
+							                            <i class="el-icon-more"></i>
+							                        </span>
+							                        <el-dropdown-menu slot="dropdown">
+							                            <el-dropdown-item :command="{info:item,index:index,type:'edit'}"><i class="el-icon-edit-outline"></i><span>编辑</span></el-dropdown-item>
+							                            <el-dropdown-item :command="{info:item,index:index,type:'delete'}"><i class="el-icon-delete"></i><span>删除</span></el-dropdown-item>
+							                        </el-dropdown-menu>
+							                    </el-dropdown>
+							                    <div class="order_theme" v-if="item.theme!='default'" :class="item.theme" ></div>
+								    		</p>
+								    	</div>
+									</li>
+									<li @click="dialogOrder=true" style="cursor: pointer;">
+										<div class="baritem"><i class="el-icon-plus" style="font-size: 14px;"></i>添加清单</div>
+									</li>
+								</ul>
+						    </el-tab-pane>
+						    <el-tab-pane label="标签" name="second">
+						    	<ul class="dateselect">
+									<div class="baritem">
+										<li @click="addTip"><i class="el-icon-plus" style="font-size: 14px;"></i>添加标签</li>
+									</div>
+								</ul>
+						    </el-tab-pane>
+						 </el-tabs>
+					</div>
+				</div>
+				<div style="overflow: hidden;border-top:1px solid #599f3c;">
+					<div>
+						<ul class="dateselect">
+							<li v-for="(item,index) in leftbar.group1" @click="changeBar('',item.name,index,item.key,item.is_vip,'group1')" :class="actives.group1[index]?'active':''">
+								<div class="baritem">
+									<i :class="item.icon"></i>
+									<span>{{item.name}}</span>
+									<div class="taskcount">{{item.count==0?'':item.count}}</div>
+								</div>
+							</li>							
+						</ul>
+					</div>
+				</div>
+				<div style="overflow: hidden;border-top:1px solid #599f3c;">
+					<div>
+						<ul class="dateselect">
+							<li v-for="(item,index) in leftbar.group2" @click="changeBar('',item.name,index,item.key,item.is_vip,'group2')" :class="actives.group2[index]?'active':''">
+								<div class="baritem">
+									<i :class="item.icon"></i>
+									<span>{{item.name}}</span>
+									<div class="taskcount">{{item.count==0?'':item.count}}</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="middle">
+			<el-container>
+				<el-row>
+					<el-col id="tasklist" v-show="tasklistshow">
+						<div>
+						<div style="line-height: 72px;font-size: 20px;font-weight: bold;padding:0 20px;">
+							<span id="lefttool" style="margin-right:10px;"><i class="el-icon-s-unfold" @click="leftbarshowFn"></i></span>
+							<span>{{currentBox.title}}</span>
+							<span style="float: right" v-show="detail.disabled"><i class="el-icon-brush" @click="brush('trash')" style="transform: rotate(180deg);font-weight: bold;cursor: pointer;"></i></span>
+						</div>
+						<div class="inputbox" ref="inputboxstyle" v-if="inputshow" style="position: relative;" v-show="inputSearch">
+							<div>
+								<el-input
+								  :placeholder="placeholder"
+								  v-model="searchStr"
+								  clearable
+								  @keyup.enter.native="taskadd"
+								  @focus="focus"
+								  @blur="blur"
+								  >
+								</el-input>
+							</div>
+							<div style="width:90px;line-height: 38px;height:38px;font-size: 18px;color: #999;position: absolute;right: 10px;top:0;">
+								<div class="toolbox" ref="toolbox" id="toolbox">
+									<span style="margin-right: 6px">
+										<el-dropdown trigger="click"  @command="levelCommand">
+					                        <span class="el-dropdown-link">
+												<i class="el-icon-s-operation" :class="task.level==0?'level0':task.level==1?'level1':task.level==2?'level2':task.level==3?'level3':''" style="transform: rotate(90deg);font-size: 18px;color: #999;"></i>
+					                        </span>
+					                        <el-dropdown-menu slot="dropdown">
+					                            <el-dropdown-item command="3"><span style="display: inline-block;width: 20px;color: #F56C6C;">!!! </span><span :class="task.level==3?'levelactive':''">高优先级</span></el-dropdown-item>
+					                            <el-dropdown-item command="2"><span style="display: inline-block;width: 20px;color: #E6A23C;">!!  </span><span :class="task.level==2?'levelactive':''">中优先级</span></el-dropdown-item>
+					                            <el-dropdown-item command="1"><span style="display: inline-block;width: 20px;color: #409EFF;">!   </span><span :class="task.level==1?'levelactive':''">低优先级</span></el-dropdown-item>
+					                            <el-dropdown-item command="0"><span style="display: inline-block;width: 20px;color: #999;">!!! </span><span :class="task.level==0?'levelactive':''">无优先级</span></el-dropdown-item>
+					                        </el-dropdown-menu>
+					                    </el-dropdown>
+									</span>
+									<span>
+										<el-dropdown trigger="click"  @command="togroup">
+					                        <span class="el-dropdown-link">
+												<i class="el-icon-upload2" style="transform: rotate(90deg);font-size: 18px;color: #999;"></i>
+					                        </span>
+					                        <el-dropdown-menu slot="dropdown">
+					                            <el-dropdown-item v-for="(item,index) in leftbar.orderlist" :command='{item:item,index:index}'>
+					                            	<i class="el-icon-s-unfold"></i>
+					                            	<span>{{item.name}}</span>
+					                            </el-dropdown-item>
+					                            <el-dropdown-item :divided="divided" :command='{name:"收集箱",id:""}'><i class="el-icon-receiving"></i><span>收集箱</span></el-dropdown-item>
+					                        </el-dropdown-menu>
+					                    </el-dropdown>
+									</span>
+									<div style="width: 30px;height: 40px;float: right;overflow: hidden;">
+										<el-date-picker
+										  size="small"
+									      v-model="changeheader"
+									      align="right"
+									      type="date"
+									      placeholder="选择日期"
+									      :picker-options="pickerOptions"
+									      >
+									    </el-date-picker>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div ref="setHeight" >
+							<el-scrollbar v-bind:style="{height: setHeight}">
+							<div>
+								<div class="task">
+									<div style="padding:0 20px;">
+										<el-divider content-position="left" v-if="overdue.length>0"><span style="font-size: 10px;color: #999">已过期</span></el-divider>
+									</div>
+									<div class="taskitem" v-for="(item,index) in overdue">
+										<div class="tasktext" :class="{active:activesTask.overdue[index]}">
+											<span style="float: left;margin-right:10px;" :class="`level`+item.level">
+												<el-checkbox v-model="item.status!=0" @change="check(item,index,'overdue')"></el-checkbox>
+											</span>
+											<div style="float: left;width: calc(100% - 24px)" @click="todetail(index,'overdue')">
+												<span>{{item.name}}</span>
+							                    <span style="float: right;margin-right: 5px;width: 50px;height: 36px;">{{item.plantime|dateformat(item.plantime)}}</span>
+							                    <span style="float: right;margin-right: 5px">{{item.ordername}}</span>
+											</div>
+						                </div>
+										<el-dropdown trigger="click"  @command="taskCommand" style="float: right;">
+					                        <span class="el-dropdown-link">
+					                            <i class="el-icon-more"></i>
+					                        </span>
+					                        <el-dropdown-menu slot="dropdown">
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'overdue'}"><i class="el-icon-star-off"></i><span>优先级</span></el-dropdown-item>
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'overdue'}"><i class="el-icon-delete"></i><span>删除</span></el-dropdown-item>
+					                        </el-dropdown-menu>
+					                    </el-dropdown>
+									</div>
+								</div>
+								<div class="task">
+									<div style="padding:0 20px;">
+										<el-divider content-position="left" v-if="todays.length>0"><span style="font-size: 10px;color: #999">今天</span></el-divider>
+									</div>
+									<div class="taskitem" v-for="(item,index) in todays">
+										<div class="tasktext" :class="{active:activesTask.todays[index]}">
+											<span style="float: left;margin-right:10px;" :class="`level`+item.level">
+												<el-checkbox v-model="item.status!=0" @change="check(item,index,'todays')"></el-checkbox>
+											</span>
+											<div style="float: left;width: calc(100% - 24px)" @click="todetail(index,'todays')">
+												<span>{{item.name}}</span>
+							                    <span style="float: right;margin-right: 5px;width: 50px;height: 36px;">{{item.plantime|dateformat(item.plantime)}}</span>
+							                    <span style="float: right;margin-right: 5px">{{item.ordername}}</span>
+											</div>
+						                </div>
+										<el-dropdown trigger="click"  @command="taskCommand" style="float: right;">
+					                        <span class="el-dropdown-link">
+					                            <i class="el-icon-more"></i>
+					                        </span>
+					                        <el-dropdown-menu slot="dropdown">
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'todays'}"><i class="el-icon-star-off"></i><span>优先级</span></el-dropdown-item>
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'todays'}"><i class="el-icon-delete"></i><span>删除</span></el-dropdown-item>
+					                        </el-dropdown-menu>
+					                    </el-dropdown>
+									</div>
+								</div>
+								<div class="task">
+									<div style="padding:0 20px;">
+										<el-divider content-position="left" v-if="future.length>0"><span style="font-size: 10px;color: #999">未来</span></el-divider>
+									</div>
+									<div class="taskitem" v-for="(item,index) in future">
+										<div class="tasktext" :class="{active:activesTask.future[index]}">
+											<span style="float: left;margin-right:10px;" :class="`level`+item.level">
+												<el-checkbox v-model="item.status!=0" @change="check(item,index,'futrue')"></el-checkbox>
+											</span>
+											<div style="float: left;width: calc(100% - 24px)" @click="todetail(index,'future')">
+												<span>{{item.name}}</span>
+							                    <span style="float: right;margin-right: 5px;width: 50px;height: 36px;">{{item.plantime|dateformat(item.plantime)}}</span>
+							                    <span style="float: right;margin-right: 5px">{{item.ordername}}</span>
+											</div>
+						                </div>
+										<el-dropdown trigger="click"  @command="taskCommand" style="float: right;">
+					                        <span class="el-dropdown-link">
+					                            <i class="el-icon-more"></i>
+					                        </span>
+					                        <el-dropdown-menu slot="dropdown">
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'future'}"><i class="el-icon-star-off"></i><span>优先级</span></el-dropdown-item>
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'future'}"><i class="el-icon-delete"></i><span>删除</span></el-dropdown-item>
+					                        </el-dropdown-menu>
+					                    </el-dropdown>
+									</div>
+								</div>
+								<div class="task">
+									<div style="padding:0 20px;"><el-divider content-position="left" v-if="noplantime.length>0"><span style="font-size: 10px;color: #999">无日期</span></el-divider></div>
+									<div class="taskitem" v-for="(item,index) in noplantime" >
+										<div class="tasktext" :class="{active:activesTask.noplantime[index]}">
+											<span style="float: left;margin-right:10px;" :class="`level`+item.level">
+												<el-checkbox v-model="item.status==1" @change="check(item,index,'noplantime')"></el-checkbox>
+											</span>
+											<div style="float: left;width: calc(100% - 24px)" @click="todetail(index,'noplantime')">
+												<span>{{item.name}}</span>
+							                    <span style="float: right;margin-right: 5px;width: 50px;height: 36px;">{{item.plantime|dateformat(item.plantime)}}</span>
+							                    <span style="float: right;margin-right: 5px">{{item.ordername}}</span>
+											</div>
+						                </div>
+										<el-dropdown trigger="click"  @command="taskCommand" style="float: right;">
+					                        <span class="el-dropdown-link">
+					                            <i class="el-icon-more"></i>
+					                        </span>
+					                        <el-dropdown-menu slot="dropdown">
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'noplantime'}"><i class="el-icon-star-off"></i><span>优先级</span></el-dropdown-item>
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'noplantime'}"><i class="el-icon-delete"></i><span>删除</span></el-dropdown-item>
+					                        </el-dropdown-menu>
+					                    </el-dropdown>
+									</div>
+								</div>
+								<div class="task">
+									<div class="taskitem" v-for="(item,index) in complete">
+										<div class="tasktext" :class="{active:activesTask.complete[index]}" style="color: rgba(0,0,0,.36)">
+											<span style="float: left;margin-right:10px;" class="completed">
+												<el-checkbox v-model="item.status==1" @change="check(item,index,'complete')"></el-checkbox>
+											</span>
+											<div style="float: left;width: calc(100% - 24px)" @click="todetail(index,'complete')">
+												<span>{{item.name}}</span>
+							                    <span style="float: right;margin-right: 5px;width: 50px;height: 36px;">{{item.plantime|dateformat(item.plantime)}}</span>
+							                    <span style="float: right;margin-right: 5px">{{item.ordername}}</span>
+											</div>
+						                </div>
+										<el-dropdown trigger="click"  @command="taskCommand" style="float: right;">
+					                        <span class="el-dropdown-link">
+					                            <i class="el-icon-more"></i>
+					                        </span>
+					                        <el-dropdown-menu slot="dropdown">
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'complete'}"><i class="el-icon-star-off"></i><span>优先级</span></el-dropdown-item>
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'complete'}"><i class="el-icon-delete"></i><span>删除</span></el-dropdown-item>
+					                        </el-dropdown-menu>
+					                    </el-dropdown>
+									</div>
+								</div>
+								<div class="task">
+									<div class="taskitem" v-for="(item,index) in trash">
+										<div class="tasktext" :class="{active:activesTask.trash[index]}" style="color: rgba(0,0,0,.36)">
+											<span style="float: left;margin-right:10px;" class="completed">
+												<el-checkbox disabled v-model="item.status==1" @change="check(item,index,'trash')"></el-checkbox>
+											</span>
+											<div style="float: left;width: calc(100% - 24px)" @click="todetail(index,'trash')">
+												<span>{{item.name}}</span>
+							                    <span style="float: right;margin-right: 5px;width: 50px;height: 36px;">{{item.plantime|dateformat(item.plantime)}}</span>
+							                    <span style="float: right;margin-right: 5px">{{item.ordername}}</span>
+											</div>
+						                </div>
+									</div>
+								</div>
+
+								<div class="task" style="margin-top: 20px;">
+									<div class="taskitem" v-for="(item,index) in taskorderlist">
+										<div class="tasktext" :class="{active:activesTask.taskorderlist[index]}">
+											<span style="float: left;margin-right:10px;" :class="`level`+item.level">
+												<el-checkbox v-model="item.status==1" @change="check(item,index,'taskorderlist')"></el-checkbox>
+											</span>
+											<div style="float: left;width: calc(100% - 24px)" @click="todetail(index,'taskorderlist')">
+												<span>{{item.name}}</span>
+							                    <span style="float: right;margin-right: 5px;width: 50px;height: 36px;">{{item.plantime|dateformat(item.plantime)}}</span>
+							                    <span style="float: right;margin-right: 5px">{{item.ordername}}</span>
+											</div>
+						                </div>
+										<el-dropdown trigger="click"  @command="taskCommand" style="float: right;">
+					                        <span class="el-dropdown-link">
+					                            <i class="el-icon-more"></i>
+					                        </span>
+					                        <el-dropdown-menu slot="dropdown">
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'taskorderlist'}"><i class="el-icon-star-off"></i><span>优先级</span></el-dropdown-item>
+					                            <el-dropdown-item :command="{id:item.id,index:index,type:'taskorderlist'}"><i class="el-icon-delete"></i><span>删除</span></el-dropdown-item>
+					                        </el-dropdown-menu>
+					                    </el-dropdown>
+									</div>
+								</div>
+							</div>
+							</el-scrollbar>
+						</div>
+						<div style="display: none">
+							<el-button type="success" @click="addbtn" icon="el-icon-plus" size="small">添加记录</el-button>
+							<el-button type="success" @click="addbtn" icon="el-icon-plus" size="small">添加记录</el-button>
+						</div>
+						<el-table
+						    :data="tableData.filter(data => !search || data.text.toLowerCase().includes(search.toLowerCase()))"
+						    style="width: 100%;display: none;">
+						    <el-table-column
+						      type="index"
+						      width="30">
+						    </el-table-column>
+						    <el-table-column
+						      label="日期"
+						      prop="time"
+						      width="140">
+						      <template slot-scope="scope">
+							      <i class="el-icon-time"></i>
+							      <span>{{ scope.row.time }}</span>
+						      </template>
+						    </el-table-column>
+						    <el-table-column
+						      label="内容"
+						      prop="text">
+						      <template slot-scope="scope">
+							      <i class="el-icon-collection-tag"></i>
+							      <span>{{ scope.row.text }}</span>
+							  </template>
+						    </el-table-column>
+						    <el-table-column
+						    	width="200"
+						      align="right">
+						      <template slot="header" slot-scope="scope">
+						        <el-input
+						          v-model="search"
+						          size="mini"
+						          placeholder="输入关键字搜索"/>
+						      </template>
+						      <template slot-scope="scope">
+						        <el-button
+						          size="mini"
+						          @click="handleEdit(scope.$index, scope.row)"><i class="el-icon-edit"></i><span>修改</span></el-button>
+						        <el-button
+						          size="mini"
+						          type="danger"
+						          @click="handleDelete(scope.$index, scope.row)"><i class="el-icon-delete"></i><span>删除</span></el-button>
+						      </template>
+						    </el-table-column>
+						  </el-table>
+						  <div class="block" style="display: none">
+						    <el-pagination
+						      @size-change="handleSizeChange"
+						      @current-change="handleCurrentChange"
+						      :current-page="currentPage4"
+						      :page-sizes="[10, 20, 30, 40]"
+						      :page-size="size"
+						      layout="total, sizes, prev, pager, next, jumper"
+						      :total="sourceData.length">
+						    </el-pagination>
+						  </div>
+						  </div>
+					</el-col>
+					<el-col id="detail" v-show="detailshow" :class="detailshow && windowWidth<921?'showImportant':''">
+						<div class="empty">
+							<span class="emptytext" v-if="!showDetail">点击任务标题查看详情</span>
+							<span class="emptytext" v-if="showDetail">Ctrl+S 保存</span>
+							<div style="border-bottom: 1px solid rgb(236, 233, 233);font-size: 13px;" v-show="showDetail">
+								<div style="margin:10px;line-height: 40px;overflow: hidden;">
+									<div style="float: left">
+										<span id="backtask" v-show="detailshow && windowWidth<921" style="font-size: 20px;margin-right: 10px;"><i class="el-icon-caret-left" @click="backtaskFn"></i></span>
+										<span :class="detail.status==1?'completed':'level'+detail.level">
+											<el-checkbox v-if="detail.disabled" disabled v-model="detail.status!=0" @change="check(detail,detail.index,detail.type)"></el-checkbox>
+											<el-checkbox  v-if="!detail.disabled" v-model="detail.status!=0" @change="check(detail,detail.index,detail.type)"></el-checkbox>
+										</span>
+									</div>
+									
+									<!-- <i class="el-icon-date" :class="detail.type=='已过期'?'errorcolor':''" style="font-size: 16px;margin-right: 5px;"></i> -->
+									<div id="detailtime" v-if="!detail.disabled" :class="detail.type=='已过期'?'detailtimecolor':''">
+										<el-date-picker
+										  size="small"
+									      v-model="detail.plantime"
+									      align="right"
+									      type="date"
+									      class="dateupdate"
+									      placeholder="选择日期"
+									      value-format="yyyy-MM-dd"
+									      @change="detailTmetimeChange"
+									      :picker-options="pickerOptions"
+									      >
+									    </el-date-picker>
+									</div>
+									<span style="margin-left: 10px;" :class="detail.type=='已过期'?'errorcolor':''">{{detail.plantime|dateformats}}</span>
+									<span style="float: right" v-if="detail.disabled">
+				                            <i class="el-icon-s-operation" :class="detail.level==0?'level0':detail.level==1?'level1':detail.level==2?'level2':detail.level==3?'level3':''" style="transform: rotate(90deg);font-size: 18px;"></i>
+				                        </span>
+									<el-dropdown trigger="click" v-if="!detail.disabled"  @command="detailLevel" style="float: right;">
+				                        <span class="el-dropdown-link">
+				                            <i class="el-icon-s-operation" :class="detail.level==0?'level0':detail.level==1?'level1':detail.level==2?'level2':detail.level==3?'level3':''" style="transform: rotate(90deg);font-size: 18px;"></i>
+				                        </span>
+				                        <el-dropdown-menu>
+				                            <el-dropdown-item command="3"><span style="display: inline-block;width: 20px;color: #F56C6C;">!!! </span><span :class="detail.level==3?'levelactives':''">高优先级</span></el-dropdown-item>
+				                            <el-dropdown-item command="2"><span style="display: inline-block;width: 20px;color: #E6A23C;">!!  </span><span :class="detail.level==2?'levelactives':''">中优先级</span></el-dropdown-item>
+				                            <el-dropdown-item command="1"><span style="display: inline-block;width: 20px;color: #409EFF;">!   </span><span :class="detail.level==1?'levelactives':''">低优先级</span></el-dropdown-item>
+				                            <el-dropdown-item command="0"><span style="display: inline-block;width: 20px;color: #999;">!!! </span><span :class="detail.level==0?'levelactives':''">无优先级</span></el-dropdown-item>
+				                        </el-dropdown-menu>
+				                    </el-dropdown>
+								</div>
+							</div>
+							<div v-if="showDetail" style="margin:10px;line-height: 30px;">
+								<el-input v-model="detail.name" placeholder="请输入任务标题" v-if="detail.disabled" :disabled='detail.disabled' class="input-reset"></el-input>
+								<el-input v-model="detail.name" placeholder="请输入任务标题" v-if="!detail.disabled" class="input-reset" @blur="titleChange"></el-input>
+								<el-scrollbar style="position: relative;width: 100%;height:100%;" v-bind:style="{height: (setDetaileHeight)}">
+									<div contenteditable="true" v-if="!detail.disabled" class="b" placeholder="填写详细信息" style="outline: none;padding:0 15px;">{{detail.detail!='null'?detail.detail:''}}</div>
+									<div v-if="detail.disabled" class="b" placeholder="填写详细信息" style="outline: none;padding:0 15px;">{{detail.detail!='null'?detail.detail:''}}</div>
+									<div class="place"v-if="!detail.disabled" style="position: absolute;top:0;left: 0;z-index:1;padding-left: 15px;color: #ccc;" v-show="!editdetail">描述</div>
+								</el-scrollbar>
+							</div>
+						</div>
+						<div v-if="showDetail" style="border-top:1px solid rgb(236, 233, 233);height: 60px;background: #fff;position: absolute;right: 0;bottom: 0;width: 100%;font-size: 18px;line-height: 60px;color: #999">
+							<div style="width: 30%;float: left;margin-left: 10px;"><i class="el-icon-files"></i> <span style="font-size: 14px;">收集箱</span></div>
+							<div style="width: 30%;float: left;margin-left: 10px;"><i class="el-icon-s-comment" title="评论"></i></div>
+							<div style="width: 30%;float: left;margin-left: 10px;"><i class="el-icon-delete-solid" title="删除"></i></div>
+							<div style="float: left;">
+								<el-dropdown trigger="click"  @command="detailmore" style="float: right;">
+			                        <span class="el-dropdown-link">
+										<i class="el-icon-more"></i>
+			                        </span>
+			                        <el-dropdown-menu slot="dropdown">
+			                            <el-dropdown-item command="upload"><i class="el-icon-paperclip"> 上传附件</i></el-dropdown-item>
+			                            <el-dropdown-item command="print"><i class="el-icon-printer"> 打印</i></el-dropdown-item>
+			                        </el-dropdown-menu>
+			                    </el-dropdown>
+							</div>
+						</div>
+					</el-col>
+				</el-row>
+				<el-footer></el-footer>
+			</el-container>
+		</div>
+		<div class="mask" v-if="leftbarshow" @click="leftbarhideFn"></div>
+		<el-dialog
+			title="新增修改"
+			:visible.sync="dialogVisible"
+			width="30%"
+			:before-close="handleClose">
+			<span>
+				<el-form ref="form" :model="form" label-width="80px">
+				  <el-form-item label="用户名称">
+				    <el-input v-model="form.name" size="small"></el-input>
+				  </el-form-item>
+				  <el-form-item label="选择日期">
+				    <el-col :span="11">
+				      <el-date-picker type="date" placeholder="选择日期" value-format="yyyy-MM-dd" size="small" v-model="info.time" style="width: 100%;"></el-date-picker>
+				    </el-col>
+				  </el-form-item>
+				  <el-form-item label="即时配送">
+				    <el-switch v-model="form.delivery"></el-switch>
+				  </el-form-item>
+				  <el-form-item label="填写内容">
+				    <el-input type="textarea" v-model="info.text" size="small"></el-input>
+				  </el-form-item>
+				</el-form>
+			</span>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="dialogVisible = false" size="small">取 消</el-button>
+				<el-button type="primary" @click="onSubmit" size="small">确 定</el-button>
+			</span>
+		</el-dialog>
+		<el-dialog
+			title="清单新增/修改"
+			:visible.sync="dialogOrder"
+			width="30%"
+			>
+			<span>
+				<el-form ref="form" :model="order" label-width="80px">
+				  <el-form-item label="名称">
+				    <el-input v-model="order.name" size="small"></el-input>
+				  </el-form-item>
+				  <el-form-item label="颜色">
+					  <el-button v-for="(item,index) in orderColor" @click="getOrderColor(index,item)" :type="item.type" size="mini" :icon="item.checked?'el-icon-check':'el-icon-minus'" circle></el-button>
+				  </el-form-item>
+				  <el-form-item label="是否隐藏">
+				    <el-switch v-model="order.display"></el-switch>
+				  </el-form-item>
+				</el-form>
+			</span>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="dialogOrder = false" size="small">取 消</el-button>
+				<el-button type="primary" @click="orderSubmit" size="small">确 定</el-button>
+			</span>
+		</el-dialog>
+	</div>
+	
+	<!-- import Vue before Element -->
+	<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+	<!-- import JavaScript -->
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<script src="./javascripts/moment.min.js"></script>
+	<script src="./javascripts/moment-with-locales.min.js"></script>
+
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <script type="text/javascript">
+    	moment.locale('zh-cn');
+    	var Vue = new Vue({
+			el: '#app',
+			data: function() {
+				return {
+					token:'',
+					leftbarshow:false,
+					detailshow:true,
+					tasklistshow:true,
+					inputshow:true,
+					divided:true,
+					currentPage4: 1,
+					info: {id:'',text:'',time:''},
+			        dialogVisible: false,
+			        dialogOrder:false,
+			        searchStr:'',
+			        inputSearch:true,
+			        activeName: 'first',
+			        imageUrl: '',
+			        is_viped:'<%= datas[0].is_vip %>',
+			        setHeight:0,
+			        windowWidth:10000,
+			        form: {
+						name: '',
+						region: '',
+						date1: '',
+						date2: '',
+						delivery: false,
+						type: [],
+						resource: '',
+						desc: ''
+			        },
+			        order: {
+						name: '',
+						display:true,
+						theme:'default',
+						id:''
+			        },
+			        task: {
+						name: '',
+						orderid: '',
+						level:0,
+						plantime:'',
+						ordername:'',
+						group:'group0',
+						index:3
+
+			        },
+					sourceData: [],
+					tableData: [],
+			        search: '',
+			        isCollapse: false,
+			        value: new Date(),
+			        size:10,
+			        pageNum:1,
+			        leftbar:[],
+			        todays:[],			// 今天
+			        complete:[],		// 已完成
+			        overdue:[],			// 已过期
+			        noplantime:[],		// 无时间
+			        future:[],			// 未来
+			        trash:[],			// 垃圾桶
+			        taskorderlist:[], 	//清单
+			        groupName:[],
+			        detail:{disabled:false},
+			        showDetail:false,
+			        actives:{
+			        },
+			        activesTask:{
+			        	complete:[],
+			        	todays:[],
+			        	overdue:[],
+			        	noplantime:[],
+			        	future:[],
+			        	trash:[]
+			        },
+			        currentBox:{
+			        	title:'收集箱',
+			        	name:'',
+			        	id:'',
+			        	type:'收集箱',
+			        	level:0
+			        },
+			        placeholder:'添加任务至"收集箱"，回车即可保存',
+			        pickerOptions: {
+			          /*disabledDate(time) {
+			            return time.getTime() > Date.now();
+			          },*/
+			          shortcuts: [{
+			            text: '今天',
+			            onClick(picker) {
+			              picker.$emit('pick', new Date());
+			            }
+			          }, {
+			            text: '昨天',
+			            onClick(picker) {
+			              const date = new Date();
+			              date.setTime(date.getTime() - 3600 * 1000 * 24);
+			              picker.$emit('pick', date);
+			            }
+			          }, {
+			            text: '一周前',
+			            onClick(picker) {
+			              const date = new Date();
+			              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+			              picker.$emit('pick', date);
+			            }
+			          }]
+			        },
+			        changeheader:'',
+			        editdetail:false,
+			        setDetaileHeight:'',
+			        orderColor:[
+			        	{ type: 'default',checked:true},
+			        	{ type: 'primary',checked:false},
+						{ type: 'success',checked:false},
+						{ type: 'info',checked:false},
+						{ type: 'danger',checked:false},
+						{ type: 'warning',checked:false}
+					]
+			    }
+			},
+			filters:{
+            	dateformat:function(myInput,arg1){
+            		if(!myInput){
+            			return '';
+            		}
+            		var date = moment(new Date(myInput)).format('MMMDo');
+            		var today = moment().format('MMMDo');
+            		var yesterday = moment(new Date(moment().format('YYYY-MM-')+(Number(moment().format('DD'))-1)+' 00:00:00')).format('MMMDo');
+            		var tomorrow = moment(new Date(moment().format('YYYY-MM-')+(Number(moment().format('DD'))+1)+' 00:00:00')).format('MMMDo');
+            		
+            		if(date==today){
+            			return '今天'
+            		}else if (date==yesterday) {
+            			return '昨天'
+            		}else if (date==tomorrow) {
+            			return '明天'
+            		}else{
+            			return date;
+            		}
+	            },
+	            dateformats:function(myInput,arg1){
+	            	if(!myInput){
+	            		return '设置日期'
+	            	}
+            		var date = moment(new Date(myInput)).format('MMMDo');
+
+            		var day = moment(new Date(myInput)).format('DD');
+            		var today = moment(new Date()).format('DD');
+
+            		var mouth = moment(new Date(myInput)).format('MM');
+            		var tomouth = moment(new Date()).format('MM');
+
+            		var year = moment(new Date(myInput)).format('YYYY');
+            		var toyear = moment(new Date()).format('YYYY');
+
+            		var todays = moment().format('MMMDo');
+            		var yesterday = moment(new Date(moment().format('YYYY-MM-')+(Number(moment().format('DD'))-1)+' 00:00:00')).format('MMMDo');
+            		var tomorrow = moment(new Date(moment().format('YYYY-MM-')+(Number(moment().format('DD'))+1)+' 00:00:00')).format('MMMDo');
+            		if(date==todays){
+            			return '今天'
+            		}else if (date==yesterday) {
+            			return '昨天'
+            		}else if (date==tomorrow) {
+            			return '明天'
+            		}else{
+            			if(toyear-year>0){
+            				return toyear-year+'年前'+','+date;
+            			}else if (toyear-year==0 && tomouth-mouth>0 ) {
+            				return tomouth-mouth+'月前'+','+date;
+            			}else if (toyear-year==0 && tomouth-mouth==0 && today-day>0) {
+            				return today-day+'天前'+','+date;
+            				
+            			}else{
+            				return date;
+            			}
+            		}
+            		
+	            }
+	        },
+			methods: {
+				brush(type){
+					const _this = this;
+					_this.$alert('垃圾桶中的任务将被永久删除。确认清空垃圾桶？', '清空垃圾桶', {
+			          confirmButtonText: '确定',
+			          callback: action => {
+			            if(action=='confirm'){
+			            	_this.$message({
+								showClose: true,
+								message: '删除成功',
+								type: 'success'
+							});
+					        return;
+							$.ajax({
+								url:'/worklist/taskbrush',
+								type: 'post',
+								headers:{'Authorization':_this.token},
+								success:function(res){
+									$.ajax({
+							    		url: '/worklist/order',
+							    		type:'get',
+										headers:{'Authorization':_this.token},
+							    		success(res){
+					            			_this.leftbar = res.groupObj;
+											_this[type] = [];
+							    		}
+							    	});
+
+								}
+							})
+			            }
+			          }
+			        });
+				},
+				leftbarshowFn(){
+					this.leftbarshow=true
+				},
+				leftbarhideFn(){
+					this.leftbarshow=false
+				},
+				backtaskFn(){
+					this.tasklistshow = true
+				},
+				getOrderColor(index,item){
+					let orderColor = this.orderColor;
+					for(let i=0;i<orderColor.length;i++){
+						orderColor[i].checked = false;
+					}
+					orderColor[index].checked = true;
+					this.order.theme = item.type;
+				},
+				detailmore(res){
+					if(res=='print'){
+						window.print();
+					}
+				},
+				detailTmetimeChange(){
+					let detail = this.detail;
+					let oldplantime = JSON.stringify(this.detail.plantime);
+					const _this = this;
+					$.ajax({
+						url:'/worklist/plantimeupdate',
+						type:'post',
+						headers:{'Authorization':_this.token},
+						data:{
+							id:detail.id,plantime:detail.plantime
+						},
+						success:function(res){
+							var today = moment(new Date()).format('YYYY-MM-DD');
+							if(detail.plantime==today){
+								_this[detail.type].splice([detail.index],1);
+								_this.todays.unshift(detail);
+								
+							}else if (detail.plantime>today) {
+									_this[detail.type].splice([detail.index],1);
+									_this.futrue.unshift(detail);
+								
+							}else if (detail.plantime < today) {
+								_this[detail.type].splice([detail.index],1);
+								_this.overdue.unshift(detail);
+							}
+						}
+					})
+				},
+				focus(){
+					this.$refs.inputboxstyle.style.border='1px solid #82c367';
+				},
+				blur(){
+					this.$refs.inputboxstyle.style.border='1px solid #fff';
+				},
+				togroup(res){
+					let str = '',
+					currentBox = this.currentBox;
+					if(currentBox.title=='今天' || currentBox.title=='七天'){
+						str = '添加 “今天” 的任务至 “'+res.item.name+'”'
+					}else if (currentBox.title=='收集箱' || currentBox.id) {
+						str = '添加任务至 “'+res.item.name+'”，回车即可保存';
+					}
+					this.task.orderid = res.item.id;
+					this.task.ordername = res.item.name;
+					this.task.index = res.index;
+					this.placeholder = str;
+				},
+				levelCommand(res){
+					this.task.level = res;				
+				},
+				detailLevel(res){
+					let index = this.detail.index;
+					let detail = this.detail
+					this.detail.level = res;
+					this[detail.type][index].level = res;
+					$.ajax({
+			    		url: '/worklist/uplevel',
+			    		type:'post',
+						headers:{'Authorization':_this.token},
+			    		data:{
+			    			id:detail.id,
+			    			level:res
+			    		},
+			    		success(res){
+
+			    		}
+			    	})
+				},
+				titleChange(){
+					const _this = this;
+					let detail = _this.detail;
+					$.ajax({
+			    		url: '/worklist/tasktitlechange',
+			    		type:'post',
+						headers:{'Authorization':_this.token},
+			    		data:{
+			    			time:moment().format('YYYY-MM-DD'),
+			    			id:detail.id,
+			    			name:detail.name
+			    		},
+			    		success(res){
+
+	            			if(detail.type=="今天"){
+								_this.tasklist[detail.index].name = detail.name;
+
+							}else if(detail.type=="已完成"){
+
+								_this.complete[detail.index].name = detail.name;
+
+							}else if (detail.type=="已过期") {
+								_this.overdue[detail.index].name = detail.name;
+								
+							}
+			    		}
+			    	})
+				},
+				changeBar(orderid,name,index,type,is_vip,group){
+
+					const _this = this;
+					if(!orderid){
+						_this.task.ordername = '';
+						_this.task.orderid = '';
+						if(is_vip==1 && is_vip != this.is_viped){
+							this.$alert('升级成会员', '会员', {
+					          confirmButtonText: '立即升级',
+					          callback: action => {
+					            
+					          }
+					        });
+					        return;
+						}
+					}
+					$.ajax({
+						url: '/worklist/task',
+			    		type:'post',
+			    		headers:{'Authorization':_this.token},
+			    		data:{
+			    			parma:type,
+			    			orderid:orderid
+			    		},
+			    		success(res){
+
+			    			_this.inputshow = true;
+
+	            			_this.task.level = 0;
+							if(orderid){
+					            _this.placeholder = '添加任务至 “'+name+'”，回车即可保存';
+					            _this.task.orderid = orderid;
+					            _this.task.ordername = name;
+					            _this.task.group = group;
+					            _this.task.index = index;
+					            _this.currentBox.orderid = orderid;
+							}else{
+								if(name=='七天' || name=='今天' ){
+					            	_this.placeholder = '添加 “今天” 的任务至 “ 收集箱 ”'
+								}
+								if(name=='收集箱'){
+					            	_this.placeholder = '添加任务至 “收集箱”，回车即可保存'
+								}
+							}
+	            			_this.todays = res.todays.data;
+	            			_this.complete = res.complete.data;
+	            			_this.overdue = res.overdue.data;
+	            			_this.future = res.future.data;
+	            			_this.noplantime = res.noplantime.data;
+	            			_this.taskorderlist = res.taskorderlist.data;
+	            			_this.trash = res.trash.data;
+	            			
+	            			_this.resetActive(res);
+			    		}
+					});
+					let actives = JSON.stringify(this.actives);
+					actives = JSON.parse(actives);
+
+					for(let key in actives){
+						for(let i=0;i<actives[key].length;i++){
+							actives[key][i] = false;
+						}
+					}
+					
+					actives[group][index] = true;
+					this.actives = actives;
+					if(type != 'orderlist'){
+						this.currentBox.name = '';
+					}else{
+						this.currentBox.name = name;
+					}
+					if(type=='trash'){
+			    		this.detail.disabled = true;
+			    	}else{
+			    		this.detail.disabled = false;
+
+			    	}
+					this.currentBox.title = name;
+					this.currentBox.id = orderid;
+					this.currentBox.type = type;
+					this.changeheader = '';
+
+		            let activesTask = _this.activesTask;
+		            for(key in activesTask){
+		            	for(let i=0;i<activesTask[key].legnth;i++){
+		            		activesTask[key][i] = false
+		            	}
+		            }
+		            _this.activesTask = activesTask;
+					if(group=='group1' || group=='group2'){
+						this.inputSearch = false;
+					}else{
+						this.inputSearch = true;
+
+					}
+									
+					this.showDetail = false;
+				},
+				resetActive(res){
+					res = JSON.parse(JSON.stringify(res));
+					let activesTask = {};
+					for(var key in res){
+						activesTask[key] = [];
+						for(var i=0;i<res[key].data.length;i++){
+							activesTask[key][i] = false;
+						}
+					}
+					this.activesTask = activesTask;
+				},
+				check(item,index,type){
+					const _this = this;		
+					$.ajax({
+						url:'/worklist/check',
+						type:'post',
+			    		headers:{'Authorization':_this.token},
+						data:{id:item.id,status:(item.status==0?1:0)},
+						success:function(res){
+							if(res.errcode==0){
+								_this.changeStatus(item,index,type);
+							}
+						}
+					})
+				},
+				changeStatus(item,index,type){
+					const _this = this;
+					activesTask = this.activesTask;
+					for(let key in activesTask){
+						for(let i=0;i<activesTask[key].length;i++){
+							activesTask[key][i]=false;
+						}
+					}
+
+					_this[type].splice(index,1);
+
+					$.ajax({
+		    		url: '/worklist/order',
+		    		type:'get',
+			    	headers:{'Authorization':_this.token},
+		    		success(res){
+            			_this.leftbar = res.groupObj;
+
+		    		}
+		    	})
+					this.detail = {}
+					this.showDetail = false;
+				},
+				orderCommand(parmas) {
+					const _this = this;
+					if(parmas.type=='delete'){
+						this.$confirm('删除清单会删除其下的所有任务。确认删除清单('+parmas.info.name+')？', '删除清单', {
+							distinguishCancelAndClose: true,
+							confirmButtonText: '确定',
+							cancelButtonText: '取消'
+						})
+						.then(() => {
+							$.ajax({
+								url: '/worklist/orderdelete',
+								type: 'post',
+			    				headers:{'Authorization':_this.token},
+								data:{id:parmas.info.id},
+								success(res){
+
+									_this.init();
+									_this.placeholder = '添加任务至 “收集箱”，回车即可保存';
+									_this.currentBox.title = '收集箱';
+									_this.currentBox.id = '';
+									_this.currentBox.type = 'group0';
+									_this.changeheader = '';
+									_this.$message({
+									  	type: 'success',
+									  	message: '删除成功'
+									});
+								}
+							})
+						})
+						.catch(action => {
+							
+						});
+					}else{
+						console.log(parmas.info)
+						_this.order = JSON.parse(JSON.stringify(parmas.info));
+						_this.order.index = parmas.index;
+						_this.order.display = parmas.info.display==1?true:false;
+						let orderColor = _this.orderColor;
+
+						for(let i=0;i<orderColor.length;i++){
+							if(orderColor[i].type==parmas.info.theme){
+								orderColor[i].checked = true;
+							}else{
+								orderColor[i].checked = false;
+							}
+						}
+						_this.dialogOrder = true;
+					}
+			    },
+			 	handleOpen(key, keyPath) {
+			        console.log(key, keyPath);
+			    },
+			    handleClose(key, keyPath) {
+			        console.log(key, keyPath);
+			    },
+			    addOrder(){
+			    	alert('222')
+			    },
+			    addTip(){
+			    	alert('标签')
+
+			    },
+			    taskadd(){
+			    	let _this = this,
+			    		task = _this.task;
+			    		task.name = _this.searchStr;
+			    	let today = moment().format('YYYY-MM-DD HH:mm:ss'),
+			    		startToday = moment().format('YYYY-MM-DD');
+
+			    	if(_this.currentBox.type=='今天'){
+			    		task.plantime = today
+			    	}
+			    	if(_this.changeheader){
+			    		task.plantime = moment(_this.changeheader).format('YYYY-MM-DD');
+			    	}
+			    	$.ajax({
+			    		url: '/worklist/taskadd',
+			    		type:'post',
+			    		headers:{'Authorization':_this.token},
+			    		data:task,
+			    		success(res){
+			    			if(res.errcode==0){
+			    				_this.searchStr = '';
+			    				_this.changeheader = '';
+			    				$.ajax({
+						    		url: '/worklist/order',
+						    		type:'get',
+			    					headers:{'Authorization':_this.token},
+						    		success(res){
+				            			_this.leftbar = res.groupObj;
+
+						    		}
+						    	});
+			    				if(task.orderid && task.orderid == _this.currentBox.orderid){
+			    					_this.taskorderlist.push(res.rows);
+			    					return;
+			    				}
+			    				if(task.orderid && task.orderid != _this.currentBox.orderid){
+			    					return;
+			    				}
+		    					if(task.plantime){
+		    						if(task.plantime<startToday){
+		    							_this.overdue.unshift(res.rows)
+		    						}else if(task.plantime==startToday){
+		    							_this.todays.unshift(res.rows)
+		    						}else if (task.plantime>today) {
+		    							_this.future.push(res.rows)
+		    						}
+		    					
+			    				}else if (!task.plantime) {
+			    					_this.noplantime.push(res.rows)
+			    				}
+			    			}
+			    		}
+			    	})
+			    },
+			    todetail(index,type){
+			    	if(this.windowWidth<921){
+			    		this.tasklistshow = false
+			    		this.detailshow = true
+			    	}
+			    	let detail={};
+			    	this.showDetail = true;
+			    	let actives = JSON.parse(JSON.stringify(this.activesTask));
+			    	for(key in actives){
+			    		for(let i=0;i<actives[key].length;i++){
+			    			actives[key][i]=false;
+			    		}
+			    	}
+
+		    		actives[type][index] = true;
+		    		detail=JSON.parse(JSON.stringify(this[type][index]));
+			    	
+			    	
+			    	detail.index = index;
+			    	detail.type = type;
+			    	this.detail = detail;
+			    	this.activesTask = actives;
+			    	this.changeheader = '';
+			    	console.log(this.detail)
+			    },
+                taskCommand(info){
+                	this[info.type].splice(info.index,1);
+                	const _this = this;
+                	$.ajax({
+                		url: '/worklist/taskdelete',
+                		type: 'post',
+			    		headers:{'Authorization':_this.token},
+                		data: {id:info.id},
+			    		success(res){
+			    			if(res.errcode==0){
+			    				_this.$message({showClose: true,message:res.msg,type:'success'});
+			    				$.ajax({
+						    		url: '/worklist/order',
+						    		type:'get',
+			    					headers:{'Authorization':_this.token},
+						    		success(res){
+				            			_this.leftbar = res.groupObj;
+
+						    		}
+						    	});
+			    			}
+			    		}
+                	})
+                },
+                handleOrderClose(){
+
+                },
+			    open() {
+			        this.$alert('这是一段内容', '标题名称', {
+			         	confirmButtonText: '确定',
+			         	callback: action => {
+			            	this.$message({
+			             		type: 'info',
+			            		message: `action: ${ action }`
+			            	});
+			          	}
+			        });
+			    },
+			    handleClose(done) {
+			        this.$confirm('确认关闭？')
+		        	.then(_ => {
+		            	done();
+		        	})
+			        .catch(_ => {});
+			    },
+			    handleSizeChange(val) {
+			    	var newtabledata = this.sourceData;
+			    	this.tableData = newtabledata.slice(0,val);
+			        console.log(`每页 ${val} 条`);
+			    },
+			    handleCurrentChange(val) {
+			    	let limit = (val-1)*this.size;
+			    	var newtabledata = this.sourceData;
+			    	this.tableData = newtabledata.slice(limit,limit+10);
+			    	this.pageNum = val;
+			        console.log(`当前页: ${val}`);
+			    },
+			    addbtn(){
+			    	this.info.id = '';
+			    	this.dialogVisible = true;
+			    },
+			    orderSubmit(){
+			    	let _this = this;
+			    	let url = '/worklist/orderadd';
+			    	let orderinfo = _this.order;
+			    	if(_this.order.name==''){
+			    		_this.$message('标题不能为空');
+				        return;
+			    	}
+			    	if(_this.order.id){
+			    		url = '/worklist/orderupdate';
+			    	}
+			    	console.log(orderinfo);
+			    	$.ajax({
+			    		url: url,
+			    		type: 'post',
+			    		headers:{'Authorization':_this.token},
+			    		data: orderinfo,
+			    		success(res){
+			    			if(res.errcode==0){
+			        			_this.dialogOrder = false;
+			        			if(_this.order.id){
+			        				for(key in orderinfo){
+			        					if(key=='theme'){
+			        						orderinfo[key] = 'default';
+			        					}else{
+			        						orderinfo[key] = '';
+			        					}
+			        				}
+			        				_this.order = orderinfo;
+			        				$.ajax({
+							    		url: '/worklist/order',
+							    		type:'get',
+			    						headers:{'Authorization':_this.token},
+							    		success(res){
+					            			_this.leftbar = res.groupObj;
+							    		}
+							    	});
+			        			}else{
+			    					_this.orderlist.push(res.rows);
+			        			}
+			    			}
+			    		}
+			    	})
+			    },
+			    onSubmit(){
+			    	let _this = this;
+			    	if(this.info.id==''){
+			    		$.ajax({
+				    		url: '/worklist/items/add',
+				    		type:'post',
+			    			headers:{'Authorization':_this.token},
+				    		data:_this.info,
+				    		success(res){
+				    			if(res.errcode==0){
+				        			_this.dialogVisible = false;
+				        			_this.tableData.unshift(res.rows);
+				    			}
+				    		}
+				    	})
+			    	}else{
+				    	$.ajax({
+				    		url: '/worklist/items/update',
+				    		type:'post',
+			    			headers:{'Authorization':_this.token},
+				    		data:_this.info,
+				    		success(res){
+				    			if(res.errcode==0){
+				        			_this.dialogVisible = false;
+				    			}
+				    		}
+				    	});
+			    	}
+			    },
+			    handleEdit(index, row) {
+			        this.info = row;
+			        this.dialogVisible = true
+			    },
+			    handleDelete(index, row) {
+			        const _this = this;
+			        this.$alert('确定要删除吗？', '删除提示', {
+			          confirmButtonText: '确定',
+			          callback: action => {
+			          	if(action=='confirm'){
+				            $.ajax({
+					    		url: '/worklist/items/delete',
+					    		type:'post',
+			    				headers:{'Authorization':_this.token},
+					    		data:{id:row.id},
+					    		success(res){
+					    			if(res.errcode==0){
+					    				let sourceData = _this.sourceData;
+						          		for(var i=0;i<sourceData.length;i++){
+					    					if(sourceData[i].id==row.id){
+								    			sourceData.splice(i, 1);
+								    			if(sourceData.length<=10){
+								    				_this.tableData = sourceData.slice(0,10);
+								    				return;
+								    			}
+						    					_this.tableData = sourceData.slice((_this.pageNum-1)*_this.size,(_this.pageNum-1)*_this.size+10);
+					    						break;
+					    					}
+					    				}
+					    			}
+					    			
+					    		}
+					    	})
+			          	}
+			          }
+			        });
+
+			    },
+                cookie(type,name,date,value){
+                    if(type=='read'){
+                        var str    = document.cookie;
+                        var arr=str.split('; ');
+                        for(var i=0;i<arr.length;i++){
+                            var arr2=arr[i].split('=');   
+                            if(arr2[0]==name){
+                                return arr2[1];
+                            }
+                        }
+                        return '';
+                    }else if (type=='set') {
+                        var expires = ''
+                        if(date){
+                            expires = date; // 单位天
+                        }else{
+                            expires = 1; // 默认1天
+                        }
+                        var expDays = expires*24*60*60*1000;
+                        var expDate = new Date();
+                        expDate.setTime(expDate.getTime()+expDays);
+                        var expString = expires ? "expires="+expDate.toGMTString() : "";
+                        var pathString = ";path=/";
+                        document.cookie = name + "=" + escape(value) + expString + pathString;
+                    }else if (type=='del') {
+                        var exp = new Date(new Date().getTime()-1);
+                        var s=this.cookie('read',name);
+                        if(s!=null) {
+                            document.cookie= name + "="+'';
+                            // toGMTString()根据格林威治时间 (GMT) 把 Date 对象转换为字符串，并返回结果
+                        }
+                    }
+
+                },
+                getItems(){
+                	let _this = this;
+			    	$.ajax({
+			    		url: '/worklist/items',
+			    		type:'get',
+			    		headers:{'Authorization':_this.token},
+			    		success(res){
+			    			let sourceData = JSON.stringify(res.data.rows);
+			    			_this.sourceData = JSON.parse(sourceData);
+			    			_this.tableData = JSON.parse(sourceData).splice(0, 10);
+			    		}
+			    	})
+                },
+                init(){
+                	let _this = this;
+
+                _this.token = this.cookie('read','token');
+			    	$.ajax({
+			    		url: '/worklist/order',
+			    		type:'get',
+			    		headers:{'Authorization':_this.token},
+			    		success(res){
+	            			_this.leftbar = res.groupObj;
+	            			let leftbar = res.groupObj,
+	            				actives = {};
+	            			for(key in leftbar){
+	            				actives[key] = [];
+	            				for(var i = 0;i<leftbar[key].length;i++){
+	            					if(leftbar[key][i].key=="inbox"){
+	            						actives[key].push(true)
+	            					}else{
+	            						actives[key].push(false)
+	            					}
+	            				}
+	            			}
+	            			_this.actives = actives;
+
+			    		}
+			    	})
+			    	$.ajax({
+			    		url: '/worklist/task',
+			    		type:'post',
+			    		headers:{'Authorization':_this.token},
+			    		data:{parma:'inbox'},
+			    		success(res){
+			            	_this.todays = res.todays.data;
+			            	_this.complete = res.complete.data;
+			            	_this.overdue = res.overdue.data;
+			            	_this.noplantime = res.noplantime.data;
+			            	_this.future = res.future.data;
+			            	_this.taskorderlist = res.taskorderlist.data
+			            	_this.resetActive(res);
+			    		}
+			    	})
+                }
+    		},
+    		watch:{
+    			setHeight(val){
+    				//console.log(val)
+    				var changeHeight = document.documentElement.clientHeight || document.body.clientHeight;
+    				this.setHeight = changeHeight-100+'px';
+    			}
+    		},
+		    mounted(){
+		    	const _this = this;
+                this.token = this.cookie('read','token');
+                this.init();
+		    	this.setHeight = document.documentElement.clientHeight-80+'px';
+		    	this.setDetaileHeight = document.documentElement.clientHeight-200+'px';
+                this.windowWidth = document.documentElement.clientWidth;
+		    	this.getItems();
+                $('body').removeClass('hide');
+                setTimeout(function(){
+                	$('#fullmarks').addClass('hide');
+                },1000);
+                window.onresize=function(){
+                	_this.setHeight= document.documentElement.clientHeight-80+'px';
+		    		_this.setDetaileHeight = document.documentElement.clientHeight-200+'px';
+                	_this.windowWidth = document.documentElement.clientWidth;
+                	if(document.documentElement.clientWidth<921){
+                		if(_this.detailshow){
+	                		_this.tasklistshow = true;
+	                		_this.detailshow = false;
+                		}
+                	}else{
+                		_this.detailshow = true;
+                	}
+                }
+                window.addEventListener("keydown", function(e) {
+			        if (e.keyCode == 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+			            if(_this.showDetail){
+			            	e.preventDefault();
+			            	_this.$message('正在保存...');
+			            	if(_this.editdetail){
+			            		// 
+			            		$.ajax({
+			            			url:'/worklist/taskdetailchange',
+			            			type:'post',
+			            			data:{
+			            				id: _this.detail.id,
+			            				detail: $('.b').html()
+			            			},
+			            			success:function(res){
+
+			            			}
+			            		})
+			            	}
+
+			            }
+			        }
+				})
+				window.addEventListener( "keyup", function() {
+					if(_this.showDetail){
+		            	let changevalue = $('.b').html();
+		            	if(changevalue!=_this.detail.detail){
+		            		_this.editdetail = true
+		            	}else{
+		            		_this.editdetail = false
+		            	}
+		            }else{
+						return;
+					}
+			    });
+		    }
+		});
+    </script>
+
+</body>
+</html>

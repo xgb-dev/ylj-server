@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel='stylesheet' href='./stylesheets/style.css' />
+    <!-- 引入样式 -->
+	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style type="text/css">
+    	.el-header{box-shadow: 0 0 5px rgba(0,0,0,.2);}
+    	.hide{display: none}
+    	.color{
+    		background: #22c1c3;  /* fallback for old browsers */
+			background: -webkit-linear-gradient(to right, #fdbb2d, #22c1c3);  /* Chrome 10-25, Safari 5.1-6 */
+			background: linear-gradient(to right, #fdbb2d, #22c1c3); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+			border-radius: 8px;
+			color: #fff;
+			font-weight: bold;
+    	}
+    </style>
+</head>
+<body class="hide">
+	<div id="app">
+		<el-container>
+			<el-header>
+				<el-row>
+					<el-col :span="12" :offset="6">
+						<div class="grid-content bg-purple-light">
+							<img style="width: 80px;margin-top: 5px;float: left;" src="./images/logo.png">
+						</div>
+					</el-col>
+				</el-row>
+			</el-header>
+			<el-container>
+				<el-main>
+					<el-row>
+						<el-col :span="12" :offset="6">
+							<el-divider style="margin:20px auto;" content-position="left">资产概况</el-divider>
+							<div class="color" style="margin-bottom: 20px;">
+								<el-row>
+									<el-col :span="6">
+										<div style="height: 80px;text-align: center;line-height: 80px;">2019</div>
+										<div style="height: 40px;text-align: center;">6</div>
+									</el-col>
+									<el-col :span="6">
+										<div style="height: 80px;text-align: center;line-height: 80px;">本月</div>
+										<div style="height: 40px;text-align: center;">6</div>
+									</el-col>
+									<el-col :span="6">
+										<div style="height: 80px;text-align: center;line-height: 80px;">收入</div>
+										<div style="height: 40px;text-align: center;">6</div>										
+									</el-col>
+									<el-col :span="6">										
+										<div style="height: 80px;text-align: center;line-height: 80px;">余额</div>
+										<div style="height: 40px;text-align: center;">6</div>
+									</el-col>
+								</el-row>
+							</div>
+
+							<el-col style="margin:20px auto;"><el-divider content-position="left">收支表</el-divider></el-col>
+							<el-button type="primary" @click="addbtn" icon="el-icon-plus" size="small">添加记录</el-button>
+							<el-table
+							    :data="tableData.filter(data => !search || data.text.toLowerCase().includes(search.toLowerCase()))"
+							    style="width: 100%;margin: 10px auto;">
+							    <el-table-column
+							      label="日期"
+							      prop="time"
+							      width="240">
+							      <template slot-scope="scope">
+								      <i class="el-icon-time"></i>
+								      <span>{{ scope.row.time }}</span>
+							      </template>
+							    </el-table-column>
+							    <el-table-column
+							      label="金额"
+							      prop="money"
+							      >
+							      <template slot-scope="scope">
+								      <span>{{ scope.row.money | MoneyFormat }}</span>
+								  </template>
+							    </el-table-column>
+							    <el-table-column
+							      label="备注"
+							      prop="text">
+							      <template slot-scope="scope">
+								      <i class="el-icon-collection-tag"></i>
+								      <span>{{ scope.row.remark }}</span>
+								  </template>
+							    </el-table-column>
+							    <el-table-column
+							    	width="200"
+							      align="right">
+							      <template slot="header" slot-scope="scope">
+							        <el-input
+							          v-model="search"
+							          size="mini"
+							          placeholder="输入关键字搜索"/>
+							      </template>
+							      <template slot-scope="scope">
+							        <el-button
+							          size="mini"
+							          @click="handleEdit(scope.$index, scope.row)"><i class="el-icon-edit"></i><span>修改</span></el-button>
+							        <el-button
+							          size="mini"
+							          type="danger"
+							          @click="handleDelete(scope.$index, scope.row)"><i class="el-icon-delete"></i><span>删除</span></el-button>
+							      </template>
+							    </el-table-column>
+							  </el-table>
+							  <div class="block">
+							    <el-pagination
+							      @size-change="handleSizeChange"
+							      @current-change="handleCurrentChange"
+							      :current-page="currentPage4"
+							      :page-sizes="[10, 20, 30, 40]"
+							      :page-size="size"
+							      layout="total, sizes, prev, pager, next, jumper"
+							      :total="sourceData.length">
+							    </el-pagination>
+							  </div>
+							<el-col style="margin:20px auto;"><el-divider content-position="left">2019年6月财务简报</el-divider></el-col>
+							<el-col>
+								<div><i class="el-icon-date"></i> 今天是您记账的第 14 天， 此账本共记录 63 笔流水。</div>
+								<div><i class="el-icon-s-operation"></i> 本月预算额度 12,000.00 元 ，已使用 10,859.00 元，还剩 1,141.00 元可用。</div>
+							</el-col>
+							<el-col style="margin:20px auto;"><el-divider content-position="left">本月分类支出</el-divider></el-col>
+						</el-col>
+						<el-col :span="4">
+							<div style="background: #f5f5f5;padding: 10px;height: 600px;margin-left: 10px;">
+								<p style="text-align: center;"><img style="width: 80px;height: 80px;background: #ccc;border-radius: 50%;"></p>
+								<p style="text-align: center;">体验用户</p>
+							</div>
+						</el-col>
+					</el-row>
+				</el-main>
+				<el-footer></el-footer>
+			</el-container>
+		</el-container>
+
+		<el-dialog
+			title="添加修改账单"
+			:visible.sync="dialogVisible"
+			width="30%"
+			:before-close="handleClose">
+			<span>
+				<el-form ref="form" :model="form" label-width="80px">
+				  <el-form-item label="金额">
+				    <el-input v-model="info.money" size="small"></el-input>
+				  </el-form-item>
+				  <el-form-item label="备注">
+				    <el-input type="textarea" v-model="info.remark" size="small"></el-input>
+				  </el-form-item>
+				  <el-form-item label="日期">
+				    <el-col :span="11">
+				      <el-date-picker
+					      v-model="info.time"
+					      type="datetime"
+					      placeholder="选择日期时间"
+					      align="right"
+					      :picker-options="pickerOptions"
+					      value-format="yyyy-MM-dd HH:mm:ss">
+					    </el-date-picker>
+				    </el-col>
+				  </el-form-item>
+				</el-form>
+			</span>
+			<span slot="footer" class="dialog-footer">
+				<el-button @click="dialogVisible = false" size="small">取 消</el-button>
+				<el-button type="primary" @click="onSubmit" size="small">确 定</el-button>
+			</span>
+		</el-dialog>
+	</div>
+	
+	<!-- import Vue before Element -->
+	<script src="https://unpkg.com/vue/dist/vue.js"></script>
+	<!-- import JavaScript -->
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <script type="text/javascript">
+    	Vue.filter('MoneyFormat', function(money) {
+		    if (money && money != null) {
+		      money = String(money);
+		      var left = money.split('.')[0], right = money.split('.')[1];
+		      right = right ? (right.length >= 2 ? '.' + right.substr(0, 2) : '.' + right + '0') : '.00';
+		      var temp = left.split('').reverse().join('').match(/(\d{1,3})/g);
+		      return (Number(money) < 0 ? '-' : '') + temp.join(',').split('').reverse().join('') + right;
+		    } else if (money === 0) { // 注意===在这里的使用，如果传入的money为0,if中会将其判定为boolean类型，故而要另外做===判断
+		      return '0.00';
+		    } else {
+		      return '';
+		    }
+		})
+    	new Vue({
+			el: '#app',
+			data: function() {
+				return {
+					currentPage4: 1,
+					info: {id:'',remark:'',time:'',money:''},
+			        dialogVisible: false,
+			        form: {
+						name: '',
+						region: '',
+						date1: '',
+						date2: '',
+						delivery: false,
+						type: [],
+						resource: '',
+						desc: ''
+			        },
+					sourceData: [],
+					tableData: [],
+			        search: '',
+			        isCollapse: false,
+			        value: new Date(),
+			        size:10,
+			        pageNum:1,
+			        pickerOptions: {
+			          shortcuts: [{
+			            text: '今天',
+			            onClick(picker) {
+			              picker.$emit('pick', new Date());
+			            }
+			          }, {
+			            text: '昨天',
+			            onClick(picker) {
+			              const date = new Date();
+			              date.setTime(date.getTime() - 3600 * 1000 * 24);
+			              picker.$emit('pick', date);
+			            }
+			          }, {
+			            text: '一周前',
+			            onClick(picker) {
+			              const date = new Date();
+			              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+			              picker.$emit('pick', date);
+			            }
+			          }]
+			        }
+			    }
+			},
+			 methods: {
+			 	handleOpen(key, keyPath) {
+			        console.log(key, keyPath);
+			    },
+			    handleClose(key, keyPath) {
+			        console.log(key, keyPath);
+			    },
+			    open() {
+			        this.$alert('这是一段内容', '标题名称', {
+			         	confirmButtonText: '确定',
+			         	callback: action => {
+			            	this.$message({
+			             		type: 'info',
+			            		message: `action: ${ action }`
+			            	});
+			          	}
+			        });
+			    },
+			    handleClose(done) {
+			        this.$confirm('确认关闭？')
+		        	.then(_ => {
+		            	done();
+		        	})
+			        .catch(_ => {});
+			    },
+			    handleSizeChange(val) {
+			    	var newtabledata = this.sourceData;
+			    	this.tableData = newtabledata.slice(0,val);
+			        console.log(`每页 ${val} 条`);
+			    },
+			    handleCurrentChange(val) {
+			    	let limit = (val-1)*this.size;
+			    	var newtabledata = this.sourceData;
+			    	this.tableData = newtabledata.slice(limit,limit+10);
+			    	this.pageNum = val;
+			        console.log(`当前页: ${val}`);
+			    },
+			    addbtn(){
+			    	this.info.id = '';
+			    	this.dialogVisible = true;
+			    },
+			    onSubmit(){
+			    	let _this = this;
+			    	if(this.info.id==''){
+			    		$.ajax({
+				    		url: '/bill/add',
+				    		type:'post',
+				    		data:_this.info,
+				    		success(res){
+				    			if(res.errcode==0){
+				        			_this.dialogVisible = false;
+				        			_this.info.id = res.rows.id;
+				        			_this.tableData.unshift(_this.info);
+				    			}
+				    		}
+				    	})
+			    	}else{
+				    	$.ajax({
+				    		url: '/bill/update',
+				    		type:'post',
+				    		data:_this.info,
+				    		success(res){
+				    			if(res.errcode==0){
+				        			_this.dialogVisible = false;
+				    			}
+				    		}
+				    	});
+			    	}
+			    },
+			    handleEdit(index, row) {
+			        console.log(index, row);
+			        this.info = row;
+			        this.dialogVisible = true
+			    },
+			    handleDelete(index, row) {
+			        const _this = this;
+			        this.$alert('确定要删除吗？', '删除提示', {
+			          confirmButtonText: '确定',
+			          callback: action => {
+			          	if(action=='confirm'){
+				            $.ajax({
+					    		url: '/bill/delete',
+					    		type:'post',
+					    		data:{id:row.id},
+					    		success(res){
+					    			if(res.errcode==0){
+					    				let sourceData = _this.sourceData;
+						          		for(var i=0;i<sourceData.length;i++){
+					    					if(sourceData[i].id==row.id){
+								    			sourceData.splice(i, 1);
+								    			if(sourceData.length<=10){
+								    				_this.tableData = sourceData.slice(0,10);
+								    				return;
+								    			}
+						    					_this.tableData = sourceData.slice((_this.pageNum-1)*_this.size,(_this.pageNum-1)*_this.size+10);
+					    						break;
+					    					}
+					    				}
+					    			}
+					    			
+					    		}
+					    	})
+			          	}
+			          }
+			        });
+
+			    },
+                cookie(type,name,date,value){
+                    if(type=='read'){
+                        var str    = document.cookie;
+                        var arr=str.split('; ');
+                        for(var i=0;i<arr.length;i++){
+                            var arr2=arr[i].split('=');   
+                            if(arr2[0]==name){
+                                return arr2[1];
+                            }
+                        }
+                        return '';
+                    }else if (type=='set') {
+                        var expires = ''
+                        if(date){
+                            expires = date; // 单位天
+                        }else{
+                            expires = 1; // 默认1天
+                        }
+                        var expDays = expires*24*60*60*1000;
+                        var expDate = new Date();
+                        expDate.setTime(expDate.getTime()+expDays);
+                        var expString = expires ? "expires="+expDate.toGMTString() : "";
+                        var pathString = ";path=/";
+                        document.cookie = name + "=" + escape(value) + expString + pathString;
+                    }else if (type=='del') {
+                        var exp = new Date(new Date().getTime()-1);
+                        var s=this.cookie('read',name);
+                        if(s!=null) {
+                            document.cookie= name + "="+'';
+                            // toGMTString()根据格林威治时间 (GMT) 把 Date 对象转换为字符串，并返回结果
+                        }
+                    }
+
+                },
+                getItems(){
+                	let _this = this;
+                	console.log(this.setTimes())
+			    	$.ajax({
+			    		url: '/bill/list',
+			    		type:'post',
+			    		success(res){
+			    			let data = res.data.rows
+			    			for (var i = data.length - 1; i >= 0; i--) {
+			    				data[i].time = _this.setTimes(data[i].time)
+			    			}
+			    			let sourceData = JSON.stringify(data);
+			    			_this.sourceData = JSON.parse(sourceData);
+			    			_this.tableData = JSON.parse(sourceData).splice(0, 10);
+			    		}
+			    	})
+                },
+                fullzero(time){
+					if(time<10){
+						return '0'+time
+					}else{
+						return time
+					}
+				},
+				setTimes(d){
+					var date = new Date(d)
+					var newdate = date.getFullYear() + '-' + this.fullzero((date.getMonth() + 1)) + '-' + this.fullzero(date.getDate()) + ' ' + this.fullzero(date.getHours()) + ':' + this.fullzero(date.getMinutes()) + ':' + this.fullzero(date.getSeconds());
+					return newdate
+				}
+    		},
+		    mounted(){
+		    	
+		    	this.getItems();
+                $('body').removeClass('hide');
+		    },
+		});
+    </script>
+</body>
+</html>

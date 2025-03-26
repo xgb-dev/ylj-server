@@ -1,0 +1,421 @@
+#leftbar{
+    background: #5ab732;width:260px;position:absolute;left:0;height: 100%;z-index: 5;
+    transition: all ease 0.5s;
+}
+#middle{
+    margin-left: 260px;width: calc(100% - 260px);height: 100%;position: absolute;top:0;
+}
+#tasklist{
+    height: 100%;border-right: 1px solid rgb(236, 233, 233);width: 60%;
+}
+#detail{
+    background: #fff;overflow: hidden;height: 100%;width: 40%;position: relative;
+}
+#lefttool{
+    display: none;
+    color: #999;
+}
+.leftset{
+    left:0 !important;
+}
+.middleset{
+    display:block !important;
+}
+.rightset{
+    display:block !important;
+}
+#backtask{
+    color: #999;
+}
+.showImportant{
+    width: 100% !important;
+}
+@media only screen and (max-width: 460px){
+    #leftbar {
+        z-index: 5;
+        left: -270px;
+        width: 260px;
+    }
+    #middle{
+        margin:0;
+        width: 100%;
+    }
+    #middle #tasklist{
+        width: 100%;
+    }
+    #middle #detail{
+        width: 0;
+    }
+    #lefttool{
+        display: inline-block;
+    }
+    .mask{
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.2);
+        position: fixed;
+        left: 0;
+        top: 0;
+    }
+}
+@media only screen and (min-width:461px) and (max-width:920px){
+    #leftbar {
+        z-index: 5;
+        left: -270px;
+    }
+    #middle{
+        margin:0;
+        width: 100%;
+    }
+    #middle #tasklist{
+        width: 100%;
+    }
+    #middle #detail{
+        width: 0;
+    }
+    #lefttool{
+        display: inline-block;
+    }
+    .mask{
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.2);
+        position: fixed;
+        left: 0;
+        top: 0;
+    }
+}
+@media only screen and (min-width:921px) and (max-width: 1020px){
+    #leftbar {
+        z-index: 5;
+        left: -270px;
+    }
+    #middle{
+        margin:0;
+        width: 100%;
+    }
+    #middle #tasklist{
+        width: 60%;
+    }
+    #middle #detail{
+        width: 40%;
+    }
+    #lefttool{
+        display: inline-block;
+    }
+    
+    .mask{
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.2);
+        position: fixed;
+        left: 0;
+        top: 0;
+    }
+}
+body,table{font-family:Microsoft YaHei;font-size: 12px;}
+.el-row,.el-container{height: 100%;}
+.hide{display: none}
+.dateselect{
+    margin:10px auto;
+    overflow: hidden;
+}
+.dateselect li{
+    line-height: 36px;
+    color: #fff;
+    margin:0 10px;
+    position: relative;
+    border-radius: 6px;
+}
+.dateselect li i{margin-right: 10px;}
+.dateselect li:hover{
+    background: #82c367;
+    cursor: pointer;
+}
+.dateselect li.active{
+    background: #599f3c;    		
+}
+.dateselect li div.baritem{
+    padding:0 8px;
+}
+.dateselect li div.taskcount{
+    float: right;
+}
+.el-tabs__item.is-active{
+    color: #fff;
+}
+.el-tabs__item:hover{
+    color: #fff;
+}
+.el-tabs__active-bar{
+    background: #fff;
+    height: 1px;
+}
+.el-tabs__nav-wrap::after{
+    height: 1px;
+    background: #599f3c;
+}
+.el-tabs__item{
+    color: #255f0c;
+}
+.dateselect li p i{
+    display:none;
+    line-height: 36px;
+    margin-right: 0;
+}
+.dateselect li:hover .num{
+    display:none;
+}
+.dateselect li:hover p i{
+    display:block;
+}
+.el-tabs__nav{
+    transform: translateX(80px) !important;
+}
+.empty{
+    position: absolute;left: 0;top: 0;right: 0;bottom: 0;
+}
+.empty .emptytext{
+    position: absolute;
+    left:0;
+    right: 0;
+    bottom: 0;
+    top:0;
+    margin: auto;
+    display: inline-block;
+    width: 100%;
+    height: 60px;
+    text-align: center;
+    font-size: 22px;
+    color: rgba(0,0,0,.24);
+}
+.fr{float: right;}
+.task .taskitem{
+    padding: 0 10px;
+    line-height: 36px;
+    height: 36px;
+}
+.task .active{
+    background: #eff3ea;
+}
+.task .taskitem .el-dropdown{
+    visibility: hidden
+}
+.task .taskitem:hover .tasktext{
+    background: #f7f9f6;
+    cursor: pointer;
+    border:0;
+    height: 37px;
+}
+.task .taskitem:hover +.taskitem .tasktext{
+    border:0;
+    height: 37px;
+
+}
+.task .taskitem:hover .el-dropdown{
+    visibility: visible
+}
+.task .taskitem .tasktext{
+    padding: 0 10px;
+    display:inline-block;
+    width: calc(100% - 34px);
+    border-bottom: 1px solid rgb(236, 233, 233);
+    border-radius: 4px;
+}
+.task .taskitem i,.task .taskitem .tasktext{cursor: pointer;}
+.task .taskitem:last-child{
+    border:0;
+}
+
+.el-checkbox{
+    margin-right: 10px;
+}
+.el-checkbox__input.is-checked .el-checkbox__inner{
+    background: #82c367;
+    border-color: #82c367;
+}
+.el-checkbox__inner:hover {
+    border-color: #82c367;
+}
+.el-checkbox__input.is-focus .el-checkbox__inner {
+    border-color: #82c367
+}
+.order_theme{
+    border-radius: 50%;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    position: absolute;
+    right: 38px;
+    top: 14px;
+}
+.order_theme.primary{
+    background: #409EFF;
+}
+.order_theme.info{
+    background: #909399;
+}
+.order_theme.danger{
+    background: #F56C6C;
+}
+.order_theme.warning{
+    background: #E6A23C;
+}
+.order_theme.success{
+    background: #67C23A;
+}
+
+
+i.level0{
+    color:#909399 !important;
+}
+i.level1{
+    color:#409EFF !important;
+}
+i.level2{
+    color:#E6A23C !important;
+}
+i.level3{
+    color:#F56C6C !important;
+}
+/*无优先级*/
+span.level0 .el-checkbox__input.is-checked .el-checkbox__inner{
+    background: #909399;
+    border-color: #909399;
+}
+span.level0 .el-checkbox__inner:hover {
+    border-color: #909399;
+}
+span.level0 .el-checkbox__input.is-focus .el-checkbox__inner {
+    border-color: #909399
+}
+/*低优先级*/
+span.level1 .el-checkbox__inner {
+    border-color: #409EFF;
+}
+span.level1 .el-checkbox__input.is-checked .el-checkbox__inner{
+    background: #409EFF;
+    border-color: #409EFF;
+}
+span.level1 .el-checkbox__inner:hover {
+    border-color: #409EFF;
+}
+span.level1 .el-checkbox__input.is-focus .el-checkbox__inner {
+    border-color: #409EFF
+}
+
+/*中优先级*/
+span.level2 .el-checkbox__input .el-checkbox__inner{
+    border-color: #E6A23C;
+}
+span.level2 .el-checkbox__input.is-checked .el-checkbox__inner{
+    background: #E6A23C;
+    border-color: #E6A23C;
+}
+span.level2 .el-checkbox__inner:hover {
+    border-color: #E6A23C;
+}
+span.level2 .el-checkbox__input.is-focus .el-checkbox__inner {
+    border-color: #E6A23C
+}
+/*高优先级*/
+span.level3 .el-checkbox__inner {
+    border-color: #F56C6C;
+}
+span.level3 .el-checkbox__input.is-checked .el-checkbox__inner{
+    background: #F56C6C;
+    border-color: #F56C6C;
+}
+span.level3 .el-checkbox__inner:hover {
+    border-color: #F56C6C;
+}
+span.level3 .el-checkbox__input.is-focus .el-checkbox__inner {
+    border-color: #F56C6C
+}
+
+
+/*已完成*/
+span.completed .el-checkbox__input.is-checked .el-checkbox__inner{
+    background: #DCDFE6;
+    border-color: #DCDFE6;
+}
+span.completed .el-checkbox__inner:hover {
+    border-color: #DCDFE6;
+}
+span.completed .el-checkbox__input.is-focus .el-checkbox__inner {
+    border-color: #DCDFE6
+}
+
+.input-reset .el-input__inner{
+    font-size: 18px;font-weight: bold;margin-bottom: 20px;outline: none;border:0;background: #e6e6e6;
+}
+.el-divider{
+    background: #fff;
+}
+.task .el-divider__text.is-left{
+    left: 0;
+}
+.task .el-divider__text{
+    padding: 0;
+}
+.inputbox{
+    margin: 0 20px;
+    overflow:hidden;
+    border:1px solid #fff;
+    height: 40px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.inputbox .el-input__inner{
+    border: 0;
+    background: #eff3ea;
+}
+.toolbox span{
+    padding: 0 1px;
+}
+#toolbox .el-input__prefix, .el-input__suffix {
+    color: #999;
+}
+.el-input--small .el-input__icon{
+    font-size: 18px;
+}
+.levelactive{
+    color: #409EFF;
+}
+.levelactives{
+    color: #409EFF;
+}
+.detailtimecolor .el-input__icon{
+    color:#F56C6C;
+}
+.errorcolor{
+    color:#F56C6C;
+}
+#detailtime {
+    width: 30px;height: 40px;float: left;overflow:hidden;margin:0 5px;
+}
+#detailtime input{
+    border: 0 !important;
+    background: rgb(255, 255, 255) !important;
+}
+#detailtime .el-input__icon{
+    margin-top: 1px;
+}
+@page {
+    size: A4;
+}
+@media print {
+    #leftbar{display:none}
+    #tasklist{display:none}
+    #detail{width: 100% !important;background: #fff !important;}
+    #middle{width: 100% !important;margin: 0 !important;}
+    .emptytext{display:none !important;}
+}
+[contenteditable]:focus + .place{
+    display:none;
+}

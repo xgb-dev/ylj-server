@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='./stylesheets/style.css' />
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style type="text/css">
+        .el-header{box-shadow: 0 0 5px rgba(0,0,0,.2);}
+        .mt-12{margin-top: 12px;}
+        .mb-5{margin-bottom: 10px;}
+        .login-box{
+            overflow: hidden;
+            position: absolute;
+            left: 0;
+            top:0;
+            right: 0;
+            bottom: 0;
+            margin:auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-container v-if='loading'>
+            <el-header>
+                <el-row>
+                    <el-col :span="12" :offset="6">
+                        <div class="grid-content bg-purple-light">
+                            <img style="width: 80px;margin-top: 5px;float: left;" src="./images/logo.png">
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-header>
+            <el-container>
+                <el-main>
+                    <el-row>
+                      <el-col :span="6" :offset="9">
+                        <el-form ref="loginForm" :model="loginForm" label-width="80px" style="margin-top: 200px;">
+                          <h3 class="login-title" style="text-align: center;margin-bottom: 20px">欢迎登录</h3>
+                          <el-form-item label="账号" prop="username">
+                            <el-input type="text" placeholder="请输入账号" v-model="loginForm.name"/>
+                          </el-form-item>
+                          <el-form-item label="密码" prop="password">
+                            <el-input type="password" placeholder="请输入密码" v-model="loginForm.password"/>
+                          </el-form-item>
+                          <el-form-item>
+                            <el-button type="primary" v-on:click="onSubmit()">登录</el-button>
+                          </el-form-item>
+                        </el-form>
+                        </el-col>
+                    </el-row>
+                </el-main>
+            </el-container>
+        </el-container>
+    </div>
+
+    
+    <!-- import Vue before Element -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <!-- import JavaScript -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
+    <script type="text/javascript">
+        new Vue({
+            el:'#app',
+            data:function(){
+                 return {
+                    dialogVisible:true,
+                    loading:false,
+                    loginForm: {
+                      name: '',
+                      password: '',
+                    }
+                  }
+            },
+            methods:{
+                onSubmit() {
+                    const _this = this;
+                    $.ajax({
+                        type:'post',
+                        url:'/login',
+                        data:_this.loginForm,
+                        success:function(res){
+                            if (res.errcode==0) {
+                                window.location.href = '/';
+                            }else if (res.errcode!=0) {
+                                let msg = res.data.msg
+                                _this.$message.error(msg);
+                            }
+                        },
+                        error:function(res){
+                            console.log(res)
+                        }
+                    })
+                },
+                handleClose(){
+                    this.dialogVisible = false;
+                }
+            },
+            created(){
+                // this.search();
+            },
+            mounted(){
+                this.loading = true;
+            }
+        }); 
+    </script>
+</body>
+</html>

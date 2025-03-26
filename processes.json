@@ -1,0 +1,29 @@
+{
+ "apps": [
+  {
+   "name": "dolphins",
+   "script": "bin/www",
+   "env": {
+    "NODE_ENV": "production",
+    "NETWORK_ENV": "inner"
+   },
+   "log_date_format": "YYYY-MM-DD HH:mm:SS",
+   "log_file": "logs/dolphin.log",
+   "error_file": "logs/dolphin-err.log",
+   "out_file": "logs/dolphin-out.log",
+   "pid_file": "pids/dolphin.pid",
+   "instances": 1,
+   "min_uptime": "100000s",
+   "max_restarts": 100000,
+   // "max_memory_restart": "1M",
+   //" cron_restart": "1 0 * * *",
+   "watch": true,
+   "ignore_watch": "logs",
+   "merge_logs": true,
+   "exec_interpreter": "node",
+   "exec_mode": "cluster_mode",
+   "autorestart": true,
+   "vizion": false
+  }
+ ]
+}

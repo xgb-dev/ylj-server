@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='./stylesheets/style.css' />
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style type="text/css">
+        .el-header{box-shadow: 0 0 5px rgba(0,0,0,.2);}
+        .mt-12{margin-top: 12px;}
+        .mb-5{margin-bottom: 10px;}
+        .hide{display: none;}
+        .color{
+            background: #abbaab;  /* fallback for old browsers */
+            background: -webkit-linear-gradient(to right, #abbaab, #f5f5f5);  /* Chrome 10-25, Safari 5.1-6 */
+            background: linear-gradient(to right, #abbaab, #f5f5f5); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        }
+        .el-backtop {
+    position: fixed;
+    background-color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: #409eff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 0 6px rgba(0,0,0,.12);
+    cursor: pointer;
+    z-index: 5;
+}
+    </style>
+</head>
+<body class="hide">
+    <div id="app">
+        <el-container v-loading="loading">
+            <el-header>
+                <el-row>
+                    <el-col :span="12" :offset="6" class="mt-12">
+                        <div class="grid-content bg-purple-light">
+                            <img style="width: 80px;float: left;" src="/images/logo.png">
+                            <el-col :span="12" :offset="4">
+                                <el-input placeholder="请输入内容" size="small" v-model="searchStr" @keyup.enter.native="autoSearch" maxlength="1" show-word-limit>
+                                    <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+                                </el-input>
+                            </el-col>
+                            <div style="float: right;">
+                                <el-button type="primary" size="small" @click="loginBox">登录</el-button>
+                                <el-button type="primary" size="small" plain @click="dialogVisible1=true">注册</el-button>
+                            </div>
+                            <div style="float: right;" v-if="!userbool">
+                                <el-dropdown trigger="click"  @command="handleCommand">
+                                    <span class="el-dropdown-link">
+                                        <el-button type="info" icon="el-icon-s-custom" circle size="small"></el-button>
+                                    </span>
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item>用户名：zhus</el-dropdown-item>
+                                        <el-dropdown-item command='signout'>退出</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </el-dropdown>
+                            </div>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-header>
+            <el-container>
+                <el-main>
+                    <el-row>
+                        <el-col :span="12" :offset="6">
+                            <el-button type="primary" plain @click="toWork">我的工作</el-button>
+                            <el-button type="success" icon="el-icon-edit" plain @click="toBill">记账</el-button>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="12" :offset="6" style="margin-top: 20px;">
+                            <el-row class="color" style="padding:20px;border-radius: 10px;">
+                                <el-col :span="4">
+                                    <div class="" style="position: relative;width:100px;text-align: center;line-height: 100px;float: left;">
+                                        <img src="/images/timg.jpg" style="width: 100px;opacity: 0.8">
+                                        <span style="font-family: KaiTi; font-size: 70px;position: absolute;left: 0;top: 0;bottom: 0;right: 0;margin: auto;">{{searchStr}}</span>                            
+                                    </div>
+                                </el-col>
+                                <el-col :span="20">
+                                    <el-col style="margin-bottom: 5px;">
+                                        <span>拼音：</span><span>{{backDates.pinyin}}</span>
+                                        <i class="el-icon-message-solid" style="color:#409eff;font-size: 18px;" @click="ling"></i>
+                                    </el-col>
+                                    <el-col style="margin-bottom: 5px;">
+                                        <span>笔画：</span><span>{{backDates.bihua}}</span>
+                                    </el-col>
+                                    <el-col style="margin-bottom: 5px;">
+                                        <span>部首：</span><span>{{backDates.bushou}}</span>
+                                    </el-col>
+                                    <el-col style="margin-bottom: 5px;">
+                                        <span>五笔：</span><span>{{backDates.wubi}}</span>
+                                    </el-col>
+                                </el-col>
+                                <el-col><hr style="margin-bottom: 20px"></el-col>
+                                <el-col>
+                                    <p class="mb-5" v-for="item in backDates.jijie">{{item}}</p>
+                                </el-col> 
+                            </el-row>
+                        </el-col>
+                        <el-col :span="12" :offset="6" style="padding:19px;border-radius: 10px;border:1px solid #ccc;margin-top: 20px;">
+                            <p class="mb-5" v-for="item in backDates.xiangjie">{{item}}</p>
+                        </el-col>
+                    </el-row>
+                    <audio ref="audio" id="audio" src="/tts.mpVoice.mp3"></audio>
+                </el-main>
+            </el-container>
+        </el-container>
+        <el-dialog
+            title="登录"
+            :visible.sync="dialogVisible"
+            width="30%"
+            :before-close="handleClose">
+            <span>
+                <el-form ref="form" :model="loginForm" label-width="80px">
+                  <el-form-item label="登录名称">
+                    <el-input size="small" v-model="loginForm.name"></el-input>
+                  </el-form-item>
+                  <el-form-item label="登陆密码">
+                    <el-input size="small" type="password" v-model="loginForm.password"></el-input>
+                  </el-form-item>
+                  <el-form-item label="记住账号">
+                    <el-switch></el-switch>
+                  </el-form-item>
+                </el-form>
+            </span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false" size="small">取 消</el-button>
+                <el-button type="primary" size="small" @click="login">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <el-dialog
+            title="注册"
+            :visible.sync="dialogVisible1"
+            width="30%"
+            :before-close="handleClose1">
+            <span>
+                <el-form ref="form" :model="registeredForm" label-width="80px">
+                  <el-form-item label="登录名称">
+                    <el-input size="small" v-model="registeredForm.name"></el-input>
+                  </el-form-item>
+                  <el-form-item label="设置密码">
+                    <el-input size="small" type="password" v-model="registeredForm.password"></el-input>
+                  </el-form-item>
+                </el-form>
+            </span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible1 = false" size="small">取 消</el-button>
+                <el-button type="primary" size="small" @click="registered">确 定</el-button>
+            </span>
+        </el-dialog>
+    </div>
+
+    
+    <!-- import Vue before Element -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <!-- import JavaScript -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.js"></script>
+    <script type="text/javascript">
+        new Vue({
+            el:'#app',
+            data:function(){
+                return{
+                    userbool:true,
+                    dialogVisible:false,
+                    dialogVisible1:false,
+                    loading:true,
+                    searchStr:'字',
+                    backDates:{
+                        pinyin:'',
+                        bihua:'',
+                        bushou:'',
+                        wubi:'',
+                        jijie:[],
+                        xiangjie:[]
+
+                    },
+                    loginForm:{
+                        name:'',
+                        password:'',
+                    },
+                    registeredForm:{
+                        name:'',
+                        password:'',
+                    }
+                }
+            },
+            methods:{
+                search(){
+                    let searchStr = this.searchStr;
+                    const _this = this;
+                    if(this.searchStr==''){
+                        this.$message({
+                            message: '填写搜索文字！',
+                            type: 'warning',
+                            duration:600
+                        });
+                        return;
+                    }
+
+                    this.audioPlay();
+                    $.ajax({
+                        type:'get',
+                        dataType:"jsonp",
+                        url:'https://v.juhe.cn/xhzd/query?key=2ee9e80976a8a5de11de2e6c888d19f3&word='+searchStr,
+                        success:function (backDate) {
+                            _this.backDates = backDate.result;
+                            _this.loading = false;
+                        }
+                    })
+                },
+                audioPlay(){
+                    const _this = this;
+                    let tex = this.searchStr;
+                    tex = encodeURI(tex);
+                    $.ajax({
+                        type:'get',
+                        url:'/audio',
+                        data:{tex:tex},
+                        success:function(res){
+                            console.log(res)
+                            if(res.errcode==0){
+                                _this.$refs.audio.src = 'https://youlaji.com/tts.mpVoice.mp3?v='+Math.random();
+                            }  
+                        },
+                        error:function(res){
+                            console.log(res)
+                        }
+                    })
+                },
+                ling(){
+                    this.$refs.audio.play();
+                },
+                autoSearch(){
+                    this.search();
+                },
+                loginBox(){
+                    var username = this.cookie('read','username');
+                    if(username){
+                        this.loginForm.name = decodeURI(username)
+                    }
+                    this.dialogVisible = true;
+                },
+                handleClose(){
+                    this.dialogVisible = false;
+                },
+                handleClose1(){
+                    this.dialogVisible1 = false;
+                },
+                login(){
+                    const _this = this;
+                    $.ajax({
+                        type:'post',
+                        url:'/login',
+                        data:_this.loginForm,
+                        success:function(res){
+                            if (res.errcode==0) {
+                                _this.dialogVisible = false;
+                                _this.loginForm.name = res.data.name;
+                                _this.userbool = false;
+                            }else if (res.errcode!=0) {
+                                var msg = res.data.msg
+                                _this.$message.error(msg);
+                            }
+                        },
+                        error:function(res){
+                            console.log(res)
+                        }
+                    })
+                },
+                registered(){
+                    const _this = this;
+                    $.ajax({
+                        type:'post',
+                        url:'/bills/list',
+                        // data:_this.registeredForm,
+                        data: {
+                            "act": "get",
+                            "y": 2020,
+                            "m": 04,
+                            "skip": 0,
+                            "limit": 10,
+                            "_openid": 'oFp7s0E3RqLxFuIqZltp3R5UGGSE'
+                        },
+                        success:function(res){
+                            if (res.errcode==0) {
+                                _this.dialogVisible1 = false;
+                            }else if (res.errcode!=0) {
+                                var msg = res.data.msg
+                                _this.$message.error(msg);
+                            }
+                        },
+                        error:function(res){
+                            console.log(res)
+                        }
+                    })
+                },
+                handleCommand(a){
+                    const _this = this;
+                    if(a=='signout'){
+                        this.cookie('del','token');
+                        this.userbool = true;
+                    }
+                },
+                cookie(type,name,date,value){
+                    if(type=='read'){
+                        var str = document.cookie;
+                        var arr = str.split('; ');
+                        for(var i=0;i<arr.length;i++){
+                            var arr2=arr[i].split('=');   
+                            if(arr2[0]==name){
+                                return arr2[1];
+                            }
+                        }
+                        return '';
+                    }else if (type=='set') {
+                        var expires = ''
+                        if(date){
+                            expires = date; // 单位天
+                        }else{
+                            expires = 1; // 默认1天
+                        }
+                        var expString = ";expires="+new Date(Date.now() + date*24*60*60*1000);
+                        var pathString = ";path=/";
+                        document.cookie = name + "=" + value + expString + pathString;
+                    }else if (type=='del') {
+                        var exp = new Date(new Date().getTime()-1);
+                        var s=this.cookie('read',name);
+                        if(s!=null) {
+                            document.cookie= name + "="+'';
+                            // toGMTString()根据格林威治时间 (GMT) 把 Date 对象转换为字符串，并返回结果
+                        }
+                    }
+
+                },
+                checkCookie(){
+                    var token = this.cookie('read','token');
+                    var username = this.cookie('read','username');
+                    if(!token){
+                        this.userbool == true;
+                    }else{
+                        this.loginForm.name = username;
+                        this.userbool = false;
+                    }
+                },
+                toWork(){
+                    window.location.href = '/worklist'
+                },
+                toBill(){
+                    window.location.href = '/bill'
+                }
+            },
+            created(){
+                this.loading = true;
+                //this.search();
+            },
+            mounted(){
+                this.loading = false;
+                this.checkCookie();
+                $('body').removeClass('hide');
+                // $.ajax({
+                //     type:'post',
+                //     url:'/qiniuToken',
+                //     success:function (backDate) {
+                //         console.log(backDate)
+                //     }
+                // })
+            }
+        });	
+    </script>
+</body>
+</html>
